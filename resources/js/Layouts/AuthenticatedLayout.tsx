@@ -35,23 +35,6 @@ export default function Authenticated({
                 >
                   Dashboard
                 </NavLink>
-
-                <NavLink
-                  href={route('feature.index')}
-                  active={route().current('feature.index')}
-                >
-                  Feature
-                </NavLink>
-                
-                {
-                  can(user, 'manage_users') &&
-                  <NavLink
-                    href={route('user.index')}
-                    active={route().current('user.index')}
-                  >
-                    Users
-                  </NavLink>
-                }
               </div>
             </div>
 
@@ -157,7 +140,7 @@ export default function Authenticated({
               Dashboard
             </ResponsiveNavLink>
 
-            <ResponsiveNavLink
+            {/* <ResponsiveNavLink
               href={route('feature.index')}
               active={route().current('feature.index')}
             >
@@ -172,7 +155,7 @@ export default function Authenticated({
               >
                 Users
               </ResponsiveNavLink>
-            }
+            } */}
           </div>
 
           <div className="border-t border-gray-200 pb-1 pt-4 dark:border-gray-600">
