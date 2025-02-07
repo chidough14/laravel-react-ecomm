@@ -22,11 +22,11 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'Vendor',
             'email' => 'vendor@example.com',
-        ])->assignRole(RolesEnum::User->value);
+        ])->assignRole(RolesEnum::Vendor->value);
 
         User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
-        ])->assignRole(RolesEnum::User->value);
+        ])->assignRole(RolesEnum::Admin->value);
     }
 }
