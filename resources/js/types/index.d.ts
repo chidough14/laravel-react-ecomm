@@ -10,6 +10,27 @@ export interface User {
   roles: string[];
 }
 
+export type Product = {
+  id: number;
+  title: string;
+  slug: string;
+  price: number;
+  quantity: number;
+  image: string;
+  user: {
+    id: number;
+    name: string;
+  };
+  department: {
+    id: number;
+    name: string;
+  }
+}
+
+export type PaginatedProps<T> = {
+  data: Array<T>;
+}
+
 export type paginatedData<T = any> = {
   data: T[];
   roles: Record<string, string>

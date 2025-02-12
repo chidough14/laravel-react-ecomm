@@ -1,30 +1,23 @@
 <?php
 
-use App\Enum\PermissionsEnum;
-use App\Enum\RolesEnum;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\FeatureController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UpvoteController;
-use App\Http\Controllers\UserController;
-use Illuminate\Foundation\Application;
+// use App\Http\Controllers\UserController;
+// use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+// use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('dashboard');
+// Route::get('/', function () {
+//     return Inertia::render('Home', [
+//         'canLogin' => Route::has('login'),
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// })->name('dashboard');
 
-// Route::redirect('/', '/dashboard');
-
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', [ProductController::class, 'home'])->name('dashboard');
+Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
