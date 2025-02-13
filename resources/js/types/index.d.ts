@@ -17,6 +17,9 @@ export type Product = {
   price: number;
   quantity: number;
   image: string;
+  images: Image[];
+  description: string;
+  short_description: string;
   user: {
     id: number;
     name: string;
@@ -24,35 +27,44 @@ export type Product = {
   department: {
     id: number;
     name: string;
-  }
+  };
+  variationTypes: variationType[];
+  variations: Array<{
+    id: number;
+    variation_type_option_ids: number[];
+    quantity: number;
+    price: number;
+  }>;
 }
 
 export type PaginatedProps<T> = {
   data: Array<T>;
 }
 
+export type Image = {
+  id: number;
+  thumb: string;
+  small: string;
+  large: string;
+}
+
+export type variationTypeOption = {
+  id: number;
+  name: string;
+  images: Image[];
+  type: variationType;
+}
+
+export type variationType = {
+  id: number;
+  name: string;
+  type: 'Select' | 'Radio' | 'Image';
+  options: variationTypeOption[]
+}
+
 export type paginatedData<T = any> = {
   data: T[];
   roles: Record<string, string>
-}
-
-export type Comment = {
-  id: number;
-  comment: string;
-  created_at: string;
-  user: User;
-}
-
-export type Feature = {
-  id: number;
-  name: string;
-  description: string;
-  user: User;
-  created_at: string;
-  upvote_count: number;
-  user_has_upvoted: boolean;
-  user_has_downvoted: boolean;
-  comments: Comment[]
 }
 
 export type PageProps<
