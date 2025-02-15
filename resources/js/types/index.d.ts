@@ -62,6 +62,18 @@ export type variationType = {
   options: variationTypeOption[]
 }
 
+export type CartItem = {
+  id: number;
+  product_id: number;
+  title: string;
+  slug: string;
+  price: number;
+  quantity: number;
+  image: string;
+  optionIds: Record<string, number>;
+  options: variationTypeOption[];
+}
+
 export type paginatedData<T = any> = {
   data: T[];
   roles: Record<string, string>
@@ -74,4 +86,7 @@ export type PageProps<
     user: User;
   };
   ziggy: Config & { location: string };
+  totalPrice: number;
+  totalQuantity: number;
+  cartItems: CartItem[];
 };

@@ -11,7 +11,7 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
     public function home () {
-        $products = Product::query()->published()->paginate(12);
+        $products = Product::query()->forWebsite()->paginate(12);
 
         return Inertia::render('Home', [
             'products' => ProductListResource::collection($products)

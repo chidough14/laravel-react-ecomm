@@ -8,8 +8,6 @@ import { useEffect, useMemo, useState } from "react"
 
 
 const Show = ({ product, variationOptions }: { product: Product, variationOptions: number[] }) => {
-
-  console.log(product)
  
   const form = useForm<{
     option_ids: Record<string, number>
