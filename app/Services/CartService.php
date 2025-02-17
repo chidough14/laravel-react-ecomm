@@ -46,7 +46,8 @@ class CartService
         }
     }
 
-    public function removeItemFromCart(int $productId, $optionIds = null) {
+    public function removeItemFromCart(int $productId, $optionIds = null)
+    {
         if (Auth::check()) {
             $this->removeItemFromDatabase($productId, $optionIds);
         } else {
@@ -57,10 +58,10 @@ class CartService
     public function getCartItems(): array
     {
         // this is for the website to open even if something goes wrong
-       
+
         try {
             if ($this->cachedCartItems === null) {
-               
+
                 if (Auth::check()) {
                     // If the user is authenticated, retrieve from database
                     $cartItems = $this->getCartItemsFromDatabase();
@@ -68,23 +69,23 @@ class CartService
                     // If the user is a guest, retrieve from cookies
                     $cartItems = $this->getCartItemsFromCookies();
                 }
-               
+
                 $productIds = collect($cartItems)->map(fn($item) => $item['product_id']);
 
                 $products = Product::whereIn('id', $productIds)->with('user.vendor')->forWebsite()->get()->keyBy('id');
 
                 $cartItemData = [];
                 foreach ($cartItems as $key => $cartItem) {
-                 
+
                     $product = data_get($products, $cartItem['product_id']);
                     if (!$product) continue;
-               
+
                     $optionInfo = [];
-                   
+
                     $options = VariationTypeOption::with('variationType')->whereIn('id', $cartItem['option_ids'])->get()->keyBy('id');
-                
+
                     $imageUrl = null;
-                  
+
                     foreach ($cartItem['option_ids'] as $option_id) {
                         $option = data_get($options, $option_id);
 
@@ -290,12 +291,44 @@ class CartService
     {
         $cartItems = $this->getCartItems();
 
-        return collect($cartItems)->groupBy(fn ($item) => $item['user']['id'])
-            ->map(fn ($items, $userId) => [
+        return collect($cartItems)->groupBy(fn($item) => $item['user']['id'])
+            ->map(fn($items, $userId) => [
                 'user' => $items->first()['user'],
                 'items' => $items->toArray(),
                 'totalQuantity' => $items->sum('quantity'),
-                'totalPrice' => $items->sum(fn ($item) => $item['price'] * $item['quantity'])
+                'totalPrice' => $items->sum(fn($item) => $item['price'] * $item['quantity'])
             ])->toArray();
+    }
+
+    public function moveCartItemsToDatabase($userId): void
+    {
+        $cartItems = $this->getCartItemsFromCookies();
+
+        // Loop through the cart items and insert inti the database
+        foreach ($cartItems as $itemKey => $cartItem) {
+            // Check if the cart item already exists for the user
+            $existingItem = CartItem::where('user_id', $userId)
+                ->where('product_id', $cartItem['product_id'])
+                ->where('variation_type_option_ids', json_encode($cartItem['option_ids']))
+                ->first();
+
+            if ($existingItem) {
+                $existingItem->update([
+                    'quantity' => $existingItem->quantity + $cartItem['quantity'],
+                    'price' => $cartItem['price']
+                ]);
+            } else {
+                // If the item does not exist create a new record
+                CartItem::create([
+                    'user_id' => $userId,
+                    'product_id' => $cartItem['product_id'],
+                    'quantity' => $cartItem['quantity'],
+                    'price' => $cartItem['price'],
+                    'variation_type_option_ids' => $cartItem['option_ids'],
+                ]);
+            }
+        }
+        // After tranferring the items, delete the cart from the cookies
+        Cookie::queue(self::COOKIE_NAME, '', -1);
     }
 }
