@@ -1,8 +1,9 @@
 import { Link, usePage } from '@inertiajs/react'
 import CurrencyFormatter from './CurrencyFormatter'
+import { productRoute } from '@/types/helpers'
 
 const MiniCartDropdown = () => {
-  const { totalPrice, totalQuantity, cartItems } = usePage().props
+  const { totalPrice, totalQuantity, miniCartItems } = usePage().props
 
   return (
     <div className="dropdown dropdown-end">
@@ -33,7 +34,7 @@ const MiniCartDropdown = () => {
 
           <div className='my-4 max-h-[300px] overflow-auto'>
             {
-              cartItems.length === 0 && (
+              miniCartItems.length === 0 && (
                 <div className='py-2 text-gray-500 text-center'>
                   You don't have any items
                 </div>
@@ -41,10 +42,10 @@ const MiniCartDropdown = () => {
             }
 
             {
-              cartItems.map((item) => (
+              miniCartItems.map((item) => (
                 <div className='flex gap-4 p-3' key={item.id}>
                   <Link 
-                    href={route('product.show', item.slug)} 
+                    href={productRoute(item)} 
                     className='w-16 h-16 flex justify-center items-center'
                   >
                     <img 
@@ -56,7 +57,7 @@ const MiniCartDropdown = () => {
 
                   <div className='flex-1'>
                     <h3 className='mb-3 font-semibold'>
-                      <Link href={route('product.show', item.slug)}>
+                      <Link href={productRoute(item)} >
                         { item.title }
                       </Link>
                     </h3>

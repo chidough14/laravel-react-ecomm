@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 //     ]);
 // })->name('dashboard');
 
+
+// Guest routes
 Route::get('/', [ProductController::class, 'home'])->name('dashboard');
 Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.show');
 
@@ -27,10 +29,15 @@ Route::controller(CartController::class)->group(function () {
     Route::delete('/cart/{product}', 'destroy')->name('cart.destroy');
 });
 
+// Authenticated users routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});;
+
+    Route::middleware(['verified'])->group(function () {
+        Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    });
+});
 
 require __DIR__ . '/auth.php';

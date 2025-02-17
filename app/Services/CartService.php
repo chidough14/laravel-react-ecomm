@@ -28,6 +28,8 @@ class CartService
 
         $price = $product->getPriceForOptions($optionIds);
 
+        // dd($quantity, $price, $optionIds);
+
         if (Auth::check()) {
             $this->saveItemToDatabase($product->id, $quantity, $price, $optionIds);
         } else {
@@ -55,10 +57,10 @@ class CartService
     public function getCartItems(): array
     {
         // this is for the website to open even if something goes wrong
-
+       
         try {
             if ($this->cachedCartItems === null) {
-
+               
                 if (Auth::check()) {
                     // If the user is authenticated, retrieve from database
                     $cartItems = $this->getCartItemsFromDatabase();
@@ -66,22 +68,23 @@ class CartService
                     // If the user is a guest, retrieve from cookies
                     $cartItems = $this->getCartItemsFromCookies();
                 }
-
+               
                 $productIds = collect($cartItems)->map(fn($item) => $item['product_id']);
 
                 $products = Product::whereIn('id', $productIds)->with('user.vendor')->forWebsite()->get()->keyBy('id');
 
                 $cartItemData = [];
-
                 foreach ($cartItems as $key => $cartItem) {
+                 
                     $product = data_get($products, $cartItem['product_id']);
                     if (!$product) continue;
-
+               
                     $optionInfo = [];
+                   
                     $options = VariationTypeOption::with('variationType')->whereIn('id', $cartItem['option_ids'])->get()->keyBy('id');
-
+                
                     $imageUrl = null;
-
+                  
                     foreach ($cartItem['option_ids'] as $option_id) {
                         $option = data_get($options, $option_id);
 
@@ -91,7 +94,7 @@ class CartService
 
                         $optionInfo[] = [
                             'id' => $option_id,
-                            'name' => $option->id,
+                            'name' => $option->name,
                             'type' => [
                                 'id' => $option->variationType->id,
                                 'name' => $option->variationType->name,
@@ -198,7 +201,6 @@ class CartService
                 'quantity' => DB::raw('quantity + ' . $quantity),
             ]);
         } else {
-            // dd($optionIds);
             CartItem::create([
                 'user_id' => $userId,
                 'product_id' => $productId,
@@ -226,7 +228,7 @@ class CartService
                 'product_id' => $productId,
                 'quantity' => $quantity,
                 'price' => $price,
-                'optionIds' => $optionIds,
+                'option_ids' => $optionIds,
             ];
         }
 
@@ -239,7 +241,7 @@ class CartService
         $userId = Auth::id();
         ksort($optionIds);
 
-        $cartItem = CartItem::where('user_id', $userId)
+        CartItem::where('user_id', $userId)
             ->where('product_id', $productId)
             ->where('variation_type_option_ids', json_encode($optionIds))
             ->delete();
@@ -282,5 +284,18 @@ class CartService
         $cartItems = json_decode(Cookie::get(self::COOKIE_NAME, '[]'), true);
 
         return $cartItems;
+    }
+
+    public function getCartItemsGrouped(): array
+    {
+        $cartItems = $this->getCartItems();
+
+        return collect($cartItems)->groupBy(fn ($item) => $item['user']['id'])
+            ->map(fn ($items, $userId) => [
+                'user' => $items->first()['user'],
+                'items' => $items->toArray(),
+                'totalQuantity' => $items->sum('quantity'),
+                'totalPrice' => $items->sum(fn ($item) => $item['price'] * $item['quantity'])
+            ])->toArray();
     }
 }

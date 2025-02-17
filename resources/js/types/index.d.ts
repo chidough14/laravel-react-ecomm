@@ -70,8 +70,15 @@ export type CartItem = {
   price: number;
   quantity: number;
   image: string;
-  optionIds: Record<string, number>;
+  option_ids: Record<string, number>;
   options: variationTypeOption[];
+}
+
+export type GroupedCartItems = {
+  user: User;
+  items: CartItem[];
+  totalQuantity: number;
+  totalPrice: number;
 }
 
 export type paginatedData<T = any> = {
@@ -82,11 +89,12 @@ export type paginatedData<T = any> = {
 export type PageProps<
   T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
+  csrf_token: string;
   auth: {
     user: User;
   };
   ziggy: Config & { location: string };
   totalPrice: number;
   totalQuantity: number;
-  cartItems: CartItem[];
+  miniCartItems: CartItem[];
 };
